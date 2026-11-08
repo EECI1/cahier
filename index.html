@@ -59,6 +59,9 @@ button{cursor:pointer}
 /* En-tête */
 .top{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--bg);
   display:flex;align-items:center;gap:12px;padding-block:14px 10px;border-bottom:1px solid var(--line)}
+.back{display:flex;align-items:center;gap:4px;height:44px;padding:0 12px 0 8px;border-radius:22px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.95rem;flex:none}
+.back svg{width:20px;height:20px}
+.back:not([hidden])+.logo{display:none}
 .logo{width:38px;height:38px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
 .top-t{min-width:0;flex:1}
 .top-t h1{font-size:1.2rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -241,6 +244,21 @@ table.t-syn td:first-child{font-family:var(--f-body);font-weight:700}
 table.t-syn th:nth-child(2),table.t-syn td:nth-child(2){text-align:right}
 .fiche-2>div,.fiche>div{min-width:0}
 .print-only{display:none!important}
+.pl-sv{display:flex;align-items:center;gap:10px}
+.pl-sv .btn{min-width:150px}
+.pl-sv .btn:disabled{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent);opacity:1}
+.pl-tot{margin:0;font-size:.88rem;color:var(--ink)}
+.pl-tot b{font-family:var(--f-num)}
+.pl-tot .lnk{margin-left:6px;font-size:.88rem}
+.pl.dirty{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-soft)}
+.pl.dirty .pl-sv .hint{color:var(--warn);font-weight:700}
+.savebar{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom, 0px));z-index:9;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  max-width:720px;margin:0 auto;padding:8px 12px 8px 16px;background:var(--gold-soft);border-top:2px solid var(--gold);color:var(--ink)}
+.savebar .btn{height:42px;white-space:nowrap;flex:none}
+.savebar span{font-size:.92rem;line-height:1.2}
+body.has-savebar{padding-bottom:calc(150px + env(safe-area-inset-bottom, 0px))}
+body.has-savebar .toast {bottom:calc(140px + env(safe-area-inset-bottom, 0px))}
+@media print{.savebar{display:none!important}}
 .cs-ov{position:fixed;inset:0;z-index:30;background:rgba(10,16,12,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px}
 @media (min-width:620px){.cs-ov{align-items:center}}
 .cs{background:var(--surface);color:var(--ink);border-radius:16px;max-width:480px;width:100%;max-height:calc(100vh - 32px);overflow:auto;padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
@@ -385,6 +403,7 @@ table.t-dj td.f,table.t-dj th.f{background:var(--gold-soft)}
 <body>
 <div class="wrap">
   <header class="top">
+    <button class="back" id="btn-back" data-act="nav-back" aria-label="Retour à la page précédente" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Retour</span></button>
     <div class="logo" aria-hidden="true">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.5 12.5a1 1 0 0 1-1 .9h-11a1 1 0 0 1-1-.9z"/><path d="M8.5 7a3.5 3.5 0 0 1 7 0"/><path d="M9 13h6"/></svg>
     </div>
@@ -628,11 +647,11 @@ function vJour(){
   }
   if (U.cr && U.cr.sign) h += sigPad();
   h += `<h3 class="sec-t">Ventes et entrées de stock</h3>
-  <p class="hint" style="margin:-10px 0 0">Pour chaque produit, notez ce qui est payé <b>comptant</b> dans les cases, et ce qui est <b>à crédit</b> avec les boutons « à crédit » : le client ou le fournisseur est alors inscrit dans Crédits.</p>`;
+  <p class="hint" style="margin:-10px 0 0">Pour chaque produit, notez ce qui est payé <b>comptant</b> dans les cases puis appuyez sur <b>Enregistrer</b>, et notez ce qui est <b>à crédit</b> avec les boutons « à crédit » : le client ou le fournisseur est alors inscrit dans Crédits.</p>`;
   if (ps.length > 8) h += rechercheProduits('pl-q');
   h += `<div class="plist">` + ps.map(p => plCard(p, d)).join('') + `</div>
   <p class="hint" id="pl-none" hidden>Aucun produit ne correspond à la recherche.</p>
-  <p class="hint">Les chiffres s'enregistrent dès que vous les tapez. Le stock disponible tient compte de tous les jours précédents.</p>`;
+  <p class="hint">À chaque vente ou entrée au comptant, tapez la quantité puis appuyez sur <b>Enregistrer</b> : elle s'ajoute au total du jour et la case revient à 0. Une erreur ? Appuyez sur <b>Corriger</b> sous le produit. Le stock disponible tient compte de tous les jours précédents.</p>`;
   h += `<div class="quick"><button class="btn quiet" data-act="cr-quick" data-k2="client" data-v="remb">+ Remboursement reçu d'un client</button><button class="btn quiet" data-act="cr-quick" data-k2="fournisseur" data-v="remb">+ Paiement à un fournisseur</button></div>`;
   h += vDepJour(d);
   return h;
@@ -642,25 +661,49 @@ const crDuJour = (d, pid, kind) => CR().dettes.filter(x => x.kind===kind && x.da
 function plCard(p, d){
   const l = ligne(d,p.id) || {e:0,v:0};
   const cq = creditQty(d,p.id,'vente'), ce = creditQty(d,p.id,'stock');
-  const vc = Math.max(0,(l.v||0)-cq), ec = Math.max(0,(l.e||0)-ce);
+  const dr = brouillon(d, p.id), sv0 = {v:Math.max(0,(l.v||0)-cq), e:Math.max(0,(l.e||0)-ce)};
+  const iv = dr ? dr.v : 0, ie = dr ? dr.e : 0, vt = sv0.v + iv + cq, et = sv0.e + ie + ce;
+  const corr = U.corr === p.id;
   const dispo = stockAvant(p.id, d);
-  const reste = dispo + (l.e||0) - (l.v||0);
+  const reste = dispo + et - vt;
   const pv = l.pv!=null ? l.pv : p.pv, pa = l.pa!=null ? l.pa : p.pa;
   const lv = crDuJour(d,p.id,'vente'), ls = crDuJour(d,p.id,'stock');
   const f = U.plcr && U.plcr.pid===p.id ? U.plcr : null;
-  return `<article class="pl ${l.e||l.v?'has':''}" data-pid="${p.id}" data-nom="${esc(p.nom.toLowerCase())}">
+  const errDr = dr && vt > dispo + et ? `Stock insuffisant : vous n'avez que ${fmt(dispo+et)} ${p.nom} (stock du matin + entrées). Ajoutez l'entrée de stock ou corrigez la quantité vendue.` : '';
+  return `<article class="pl ${l.e||l.v?'has':''} ${dr?'dirty':''} ${errDr?'err':''}" data-pid="${p.id}" data-nom="${esc(p.nom.toLowerCase())}">
     <div class="pl-h"><span class="pl-n">${esc(p.nom)}</span><span class="pl-d ${dispo<= (p.seuil||0)?'low':''}">En stock ce matin <b>${fmt(dispo)}</b> ${esc(UN(p))}</span></div>
     <div class="pl-f">
-      <div class="fld"><label for="v-${p.id}">Vendu au comptant (${esc(UN(p))})</label><div class="step"><button class="sb" data-act="step" data-k="-1" aria-label="Retirer une vente">−</button><input class="in" id="v-${p.id}" data-f="v" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${vc||''}"><button class="sb" data-act="step" data-k="1" aria-label="Ajouter une vente">+</button></div>
+      <div class="fld"><label for="v-${p.id}">Nouvelle vente au comptant (${esc(UN(p))})</label><div class="step"><button class="sb" data-act="step" data-k="-1" aria-label="Retirer une vente">−</button><input class="in" id="v-${p.id}" data-f="v" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${iv||''}"><button class="sb" data-act="step" data-k="1" aria-label="Ajouter une vente">+</button></div>
         <button class="lnk crb" data-act="pl-cr" data-pid="${p.id}" data-k2="vente">+ Vente à crédit</button></div>
-      <div class="fld"><label for="e-${p.id}">Entrée payée comptant (${esc(UN(p))})</label><input class="in" id="e-${p.id}" data-f="e" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${ec||''}">
+      <div class="fld"><label for="e-${p.id}">Nouvelle entrée payée comptant (${esc(UN(p))})</label><input class="in" id="e-${p.id}" data-f="e" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${ie||''}">
         <button class="lnk crb" data-act="pl-cr" data-pid="${p.id}" data-k2="stock">+ Entrée reçue à crédit</button></div>
     </div>
     ${f ? plCrForm(p, f.kind) : ''}
-    <div class="pl-c"><span>Vente <b data-o="tv">${F((l.v||0)*pv)}</b></span><span>Marge <b data-o="mb">${F((l.v||0)*(pv-pa))}</b></span><span>Reste <b data-o="r">${fmt(reste)}</b> ${esc(UN(p))}</span>
+    <div class="pl-sv"><button class="btn" data-act="pl-save" ${dr?'':'disabled'}>${dr ? 'Enregistrer' : (sv0.e||sv0.v ? '✓ Enregistré' : 'Enregistrer')}</button><span class="hint">${dr ? 'Pas encore enregistré' : ''}</span></div>
+    <p class="pl-tot" data-o="tot">${totComptant(sv0, p)}</p>
+    ${corr ? corrForm(p, sv0) : ''}
+    <div class="pl-c"><span>Vente <b data-o="tv">${F(vt*pv)}</b></span><span>Marge <b data-o="mb">${F(vt*(pv-pa))}</b></span><span>Reste <b data-o="r">${fmt(reste)}</b> ${esc(UN(p))}</span>
       ${lv.map(x=>`<span class="cr">${fmt(x.q)} vendu(s) à crédit à ${esc(x.nom)}</span>`).join('')}${ls.map(x=>`<span class="cr">${fmt(x.q)} reçu(s) à crédit de ${esc(x.nom)}</span>`).join('')}</div>
-    <p class="msg bad" data-o="err" hidden></p>
+    <p class="msg bad" data-o="err" ${errDr?'':'hidden'}>${esc(errDr)}</p>
   </article>`;
+}
+function totComptant(sv, p){
+  if (!sv.v && !sv.e) return `<span class="hint">Rien d'enregistré au comptant aujourd'hui.</span>`;
+  return `Enregistré aujourd'hui au comptant : vendu <b>${fmt(sv.v)}</b> · entré <b>${fmt(sv.e)}</b> ${esc(UN(p))} <button class="lnk" data-act="pl-corr">Corriger</button>`;
+}
+function corrForm(p, sv){
+  return `<form class="plcr" id="f-corr" data-pid="${p.id}"><b>Corriger les totaux au comptant du jour — ${esc(p.nom)}</b>
+    <p class="hint" style="margin:0">Tapez le bon total de la journée (pas une quantité à ajouter). Les ventes et entrées à crédit ne changent pas.</p>
+    <div class="pl-f"><div class="fld"><label for="co-v">Total vendu au comptant (${esc(UN(p))})</label><input class="in" id="co-v" inputmode="numeric" pattern="[0-9]*" value="${sv.v}"></div>
+      <div class="fld"><label for="co-e">Total entré comptant (${esc(UN(p))})</label><input class="in" id="co-e" inputmode="numeric" pattern="[0-9]*" value="${sv.e}"></div></div>
+    <p class="msg bad" id="co-err" hidden></p>
+    <div class="row"><button class="btn" type="submit">Enregistrer la correction</button><button class="btn quiet" type="button" data-act="pl-corr-no">Annuler</button></div></form>`;
+}
+function corrSubmit(f){
+  if (f.id !== 'f-corr') return false;
+  const pid = f.dataset.pid, p = prod(pid), err = sauverLigne(U.date, pid, int($('#co-e').value), int($('#co-v').value));
+  if (err) { const e = $('#co-err'); e.textContent = err; e.hidden = false; return true; }
+  U.corr = null; const y = window.scrollY; render(); window.scrollTo(0,y); toast(`✓ Totaux de ${p.nom} corrigés.`); return true;
 }
 function plCrForm(p, kind){
   const cli = kind==='vente', type = cli ? 'client' : 'fournisseur', tiers = CR().tiers.filter(x => x.type===type);
@@ -697,37 +740,86 @@ function filtrerProduits(id, sel){
   document.querySelectorAll(sel).forEach(el => { const ok = !q || (el.dataset.nom||'').includes(q); el.hidden = !ok; if (ok) n++; });
   const none = $(id==='pl-q' ? '#pl-none' : '#pr-none'); if (none) none.hidden = n > 0;
 }
-function onJourInput(card){
-  const pid = card.dataset.pid, p = prod(pid), d = U.date, m = d.slice(0,7);
-  const cq = creditQty(d,pid,'vente'), ce = creditQty(d,pid,'stock');
-  const e = int(card.querySelector('[data-f="e"]').value) + ce, v = int(card.querySelector('[data-f="v"]').value) + cq;
-  const dispo = stockAvant(pid, d);
-  const errEl = card.querySelector('[data-o="err"]');
+/* Saisies au comptant : brouillon tant que l'on n'a pas appuyé sur « Enregistrer » */
+const BR_K = LK+'-brouillon';
+U.draft = (() => { try { return JSON.parse(localStorage.getItem(BR_K) || '{}') || {}; } catch(_) { return {}; } })();
+const sauverBrouillon = () => { try { localStorage.setItem(BR_K, JSON.stringify(U.draft)); } catch(_){} };
+const nbBrouillons = () => Object.values(U.draft).reduce((a,x) => a + Object.keys(x).length, 0);
+function comptantEnregistre(d, pid){ const l = ligne(d,pid) || {e:0,v:0}; return {e: Math.max(0,(l.e||0)-creditQty(d,pid,'stock')), v: Math.max(0,(l.v||0)-creditQty(d,pid,'vente'))}; }
+function brouillon(d, pid){ return U.draft[d] && U.draft[d][pid]; }
+/* Vérifie et enregistre une ligne ; renvoie '' si tout va bien, sinon le message d'erreur */
+function sauverLigne(d, pid, ec, vc){
+  const p = prod(pid); if (!p) return '';
+  const m = d.slice(0,7), cq = creditQty(d,pid,'vente'), ce = creditQty(d,pid,'stock');
+  const e = ec + ce, v = vc + cq, dispo = stockAvant(pid, d);
+  if (v > dispo + e) return `Stock insuffisant pour ${p.nom} : vous n'avez que ${fmt(dispo+e)} (stock du matin + entrées)${cq?`, dont ${fmt(cq)} déjà vendu(s) à crédit`:''}. Ajoutez l'entrée de stock ou corrigez la quantité vendue.`;
   const M = useM(m); M.jours[d] = M.jours[d] || {};
   const old = M.jours[d][pid] ? {...M.jours[d][pid]} : null;
   const apply = (ee, vv) => {
     if (!ee && !vv) { delete M.jours[d][pid]; if (!Object.keys(M.jours[d]).length) delete M.jours[d]; }
     else { const l = M.jours[d][pid] || {pv:p.pv, pa:p.pa}; l.e = ee; l.v = vv; M.jours[d][pid] = l; }
   };
-  const restore = () => { M.jours[d] = M.jours[d] || {}; if (old) M.jours[d][pid] = old; else apply(0,0); };
-  let err = '';
-  if (v > dispo + e) {
-    err = `Stock insuffisant : vous n'avez que ${fmt(dispo+e)} ${p.nom} (stock du matin + entrées)${cq?`, dont ${fmt(cq)} déjà vendu(s) à crédit`:''}. Ajoutez l'entrée de stock ou corrigez la quantité vendue.`;
-    apply(e, Math.min(old ? old.v||0 : 0, dispo+e));
-  } else apply(e, v);
+  apply(e, v);
   const neg = premierNegatif(pid);
-  if (neg) { restore(); err = `Impossible : le stock de ${p.nom} deviendrait négatif le ${court(neg)}. Corrigez d'abord ce jour-là.`; }
-  errEl.hidden = !err; errEl.textContent = err;
-  card.classList.toggle('err', !!err);
-  const l = ligne(d,pid) || {e:0,v:0};
-  const pv = l.pv!=null?l.pv:p.pv, pa = l.pa!=null?l.pa:p.pa;
-  card.classList.toggle('has', !!(l.e||l.v));
-  card.querySelector('[data-o="tv"]').textContent = F((l.v||0)*pv);
-  card.querySelector('[data-o="mb"]').textContent = F((l.v||0)*(pv-pa));
-  card.querySelector('[data-o="r"]').textContent = fmt(dispo + (l.e||0) - (l.v||0));
-  const t = totalJour(d);
-  $('#t-ca').textContent = F(t.ca); $('#t-mb').textContent = F(t.mb); $('#t-q').textContent = fmt(t.q);
+  if (neg) { M.jours[d] = M.jours[d] || {}; if (old) M.jours[d][pid] = old; else apply(0,0); return `Impossible : le stock de ${p.nom} deviendrait négatif le ${court(neg)}. Corrigez d'abord ce jour-là.`; }
   Store.touch('m-'+m);
+  return '';
+}
+function apercuCarte(card, errTxt){
+  const pid = card.dataset.pid, p = prod(pid), d = U.date;
+  const ie = int(card.querySelector('[data-f="e"]').value), iv = int(card.querySelector('[data-f="v"]').value);
+  const sv = comptantEnregistre(d, pid), modifie = !!(ie || iv);
+  if (modifie) { (U.draft[d] = U.draft[d] || {})[pid] = {e:ie, v:iv}; }
+  else if (U.draft[d]) { delete U.draft[d][pid]; if (!Object.keys(U.draft[d]).length) delete U.draft[d]; }
+  sauverBrouillon();
+  const cq = creditQty(d,pid,'vente'), ce = creditQty(d,pid,'stock'), l = ligne(d,pid) || {};
+  const e = sv.e + ie + ce, v = sv.v + iv + cq, dispo = stockAvant(pid, d);
+  const pv = l.pv!=null?l.pv:p.pv, pa = l.pa!=null?l.pa:p.pa;
+  card.querySelector('[data-o="tot"]').innerHTML = totComptant(sv, p);
+  card.querySelector('[data-o="tv"]').textContent = F(v*pv);
+  card.querySelector('[data-o="mb"]').textContent = F(v*(pv-pa));
+  card.querySelector('[data-o="r"]').textContent = fmt(dispo + e - v);
+  let err = errTxt || '';
+  if (!err && v > dispo + e) err = `Stock insuffisant : vous n'avez que ${fmt(dispo+e)} ${p.nom} (stock du matin + entrées). Ajoutez l'entrée de stock ou corrigez la quantité vendue.`;
+  const errEl = card.querySelector('[data-o="err"]'); errEl.hidden = !err; errEl.textContent = err;
+  card.classList.toggle('err', !!err); card.classList.toggle('dirty', modifie);
+  const btn = card.querySelector('[data-act="pl-save"]');
+  btn.disabled = !modifie; btn.textContent = modifie ? 'Enregistrer' : (sv.e || sv.v ? '✓ Enregistré' : 'Enregistrer');
+  const h = card.querySelector('.pl-sv .hint'); if (h) h.textContent = modifie ? 'Pas encore enregistré' : '';
+  majBarreSauver();
+}
+const onJourInput = card => apercuCarte(card);
+function enregistrerCarte(card){
+  const pid = card.dataset.pid, d = U.date, p = prod(pid);
+  const ie = int(card.querySelector('[data-f="e"]').value), iv = int(card.querySelector('[data-f="v"]').value);
+  if (!ie && !iv) return false;
+  const sv = comptantEnregistre(d, pid), err = sauverLigne(d, pid, sv.e + ie, sv.v + iv);
+  if (err) { apercuCarte(card, err); return false; }
+  card.querySelector('[data-f="e"]').value = ''; card.querySelector('[data-f="v"]').value = '';
+  if (U.draft[d]) { delete U.draft[d][pid]; if (!Object.keys(U.draft[d]).length) delete U.draft[d]; } sauverBrouillon();
+  apercuCarte(card); card.classList.toggle('has', !!(ligne(d,pid)));
+  const t = totalJour(d); $('#t-ca').textContent = F(t.ca); $('#t-mb').textContent = F(t.mb); $('#t-q').textContent = fmt(t.q);
+  const nv = comptantEnregistre(d, pid);
+  toast(`✓ ${p.nom} : ${[iv?fmt(iv)+' vendu(s)':'', ie?fmt(ie)+' entré(s)':''].filter(Boolean).join(' et ')} au comptant. Total du jour : vendu ${fmt(nv.v)}, entré ${fmt(nv.e)}.`);
+  return true;
+}
+function enregistrerTout(){
+  let ok = 0; const errs = [];
+  Object.keys(U.draft).sort().forEach(d => Object.keys(U.draft[d]).forEach(pid => {
+    const x = U.draft[d][pid], sv = comptantEnregistre(d, pid), err = sauverLigne(d, pid, sv.e + x.e, sv.v + x.v);
+    if (err) errs.push((d!==U.date ? court(d)+' — ' : '') + err); else { delete U.draft[d][pid]; ok++; }
+    if (!Object.keys(U.draft[d]).length) delete U.draft[d];
+  }));
+  sauverBrouillon();
+  const y = window.scrollY; render(); window.scrollTo(0,y);
+  if (errs.length) toast(`${ok} enregistré(s). ${errs.length} saisie(s) à corriger : ${errs[0]}`);
+  else toast(`✓ ${ok} saisie(s) enregistrée(s).`);
+}
+function majBarreSauver(){
+  let el = $('#savebar'); const n = nbBrouillons();
+  if (!el) { el = document.createElement('div'); el.id = 'savebar'; el.className = 'savebar'; document.body.appendChild(el); }
+  el.hidden = !n; document.body.classList.toggle('has-savebar', !!n);
+  if (n) el.innerHTML = `<span><b>${n}</b> saisie${n>1?'s':''} non enregistrée${n>1?'s':''}</span><button class="btn" data-act="pl-save-all">Enregistrer tout</button>`;
 }
 
 /* ---------- Vue : Charges ---------- */
@@ -1627,7 +1719,50 @@ function csAct(a){
   try { if (a!=='cs-close') speechSynthesis.cancel(); } catch(_){}
   renderConseil(); return true;
 }
-function renderConseil(){ let el = $('#conseil'); if (!el) { el = document.createElement('div'); el.id = 'conseil'; document.body.appendChild(el); } el.innerHTML = vConseil(); }
+function renderConseil(){ let el = $('#conseil'); if (!el) { el = document.createElement('div'); el.id = 'conseil'; document.body.appendChild(el); } el.innerHTML = vConseil(); navSuivre(); }
+
+/* ---------- Retour arrière : bouton en haut et touche Retour du téléphone ---------- */
+const NAV = {stack:[], cur:null, silent:false, armed:false};
+const navEtat = () => JSON.stringify({t:U.tab, o:U.tab==='credits' && U.cr ? (U.cr.open||null) : null, c:!!U.conseil});
+function navAppliquer(k){
+  const e = JSON.parse(k);
+  U.tab = e.t; U.edit = null; U.confirm = null; U.plcr = null;
+  if (U.cr) U.cr.open = e.o; else if (e.o) U.cr = {side:'client', vue:'cahier', open:e.o};
+  if (!e.c) { U.conseil = null; try { speechSynthesis.cancel(); } catch(_){} } else if (!U.conseil) U.conseil = {i: conseilDuJour()};
+  try { localStorage.setItem(LK+'-tab', U.tab); } catch(_){}
+  NAV.silent = true; render(); renderConseil(); NAV.silent = false; window.scrollTo(0,0);
+}
+const ACCUEIL = () => JSON.stringify({t:'jour', o:null, c:false});
+function navMaj(){ const b = $('#btn-back'); if (b) b.hidden = !(NAV.stack.length || navEtat() !== ACCUEIL()); }
+function navSuivre(){
+  const k = navEtat();
+  if (NAV.cur === null) { NAV.cur = k; navMaj(); return; }
+  if (k !== NAV.cur) {
+    if (!NAV.silent && NAV.stack.length && NAV.stack[NAV.stack.length-1] === k) { NAV.stack.pop(); NAV.ignore = true; try { history.back(); } catch(_) { NAV.ignore = false; } }
+    else if (!NAV.silent) { NAV.stack.push(NAV.cur); if (NAV.stack.length > 50) NAV.stack.shift(); try { history.pushState({cb:1}, ''); } catch(_){} }
+    NAV.cur = k;
+  }
+  navMaj();
+}
+function navRetour(){
+  if (NAV.stack.length) { try { history.back(); return; } catch(_){} const k = NAV.stack.pop(); NAV.cur = k; navAppliquer(k); navMaj(); return; }
+  if (navEtat() !== ACCUEIL()) { NAV.cur = ACCUEIL(); navAppliquer(NAV.cur); navMaj(); }
+}
+window.addEventListener('popstate', () => {
+  if (NAV.ignore) { NAV.ignore = false; navMaj(); return; }
+  if (NAV.stack.length) {
+    const k = NAV.stack.pop(); NAV.cur = k; navAppliquer(k);
+    if (!NAV.stack.length && !NAV.armed) { try { history.pushState({cb:'garde'}, ''); NAV.armed = true; } catch(_){} }
+  } else if (navEtat() !== ACCUEIL()) {
+    NAV.cur = ACCUEIL(); navAppliquer(NAV.cur);
+    try { history.pushState({cb:'garde'}, ''); NAV.armed = true; } catch(_){}
+  } else {
+    NAV.armed = false;
+    toast("Appuyez encore sur Retour pour quitter l'application.");
+  }
+  navMaj();
+});
+function navDemarrer(){ try { history.replaceState({cb:'base'}, ''); history.pushState({cb:'garde'}, ''); NAV.armed = true; } catch(_){} }
 
 /* ---------- Unités de mesure ---------- */
 const UNITES = ['pièce','kg','g','L','sac','carton','casier','paquet','boîte','sachet','bouteille','bidon','tas','botte','plateau','régime','douzaine','mètre','seau','tine'];
@@ -1897,8 +2032,10 @@ function render(){
   $('#app').innerHTML = `<div class="view">${locked() && U.tab!=='licence' ? lockedNote() : ''}${v()}</div>`;
   if (locked()) document.querySelectorAll('#app input, #app form button, #app select').forEach(el => { if (!el.closest('[data-free]') && !['f-date','syn-p','syn-de','syn-a','cr-done','pl-q','pr-q'].includes(el.id)) el.disabled = true; });
   crAfterRender();
+  navSuivre();
+  majBarreSauver();
 }
-function go(tab){ U.tab = tab; U.edit = null; U.confirm = null; try{localStorage.setItem(LK+'-tab',tab)}catch(e){} render(); window.scrollTo(0,0); }
+function go(tab){ if (U.tab==='jour' && tab!=='jour' && nbBrouillons()) setTimeout(() => toast("Attention : des ventes ne sont pas encore enregistrées. Appuyez sur « Enregistrer tout »."), 50); U.tab = tab; U.edit = null; U.confirm = null; try{localStorage.setItem(LK+'-tab',tab)}catch(e){} render(); window.scrollTo(0,0); }
 
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tab],[data-act]'); if (!t) return;
@@ -1908,6 +2045,11 @@ document.addEventListener('click', e => {
   if (licAct(a, t)) return;
   switch(a){
     case 'goto': return go(t.dataset.tab);
+    case 'nav-back': return navRetour();
+    case 'pl-save': { const card = t.closest('.pl'); if (card) enregistrerCarte(card); return; }
+    case 'pl-save-all': return enregistrerTout();
+    case 'pl-corr': { U.corr = t.closest('.pl').dataset.pid; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+    case 'pl-corr-no': { U.corr = null; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
     case 'day': { const n = addDay(U.date,k); if (n<=today()) { U.date = n; render(); } return; }
     case 'month': { const n = addMonth(U.mois,k); if (n<=today().slice(0,7)) { U.mois = n; U.confirm=null; render(); } return; }
     case 'pl-cr': { const pid = t.dataset.pid, k = t.dataset.k2; U.plcr = U.plcr && U.plcr.pid===pid && U.plcr.kind===k ? null : {pid, kind:k}; const y = window.scrollY; render(); window.scrollTo(0,y); const i = $('#pc-q'); if (i) i.focus(); return; }
@@ -1995,6 +2137,7 @@ document.addEventListener('submit', e => {
   const f = e.target;
   if (f.id === 'f-act') return activer();
   if (locked()) return;
+  if (corrSubmit(f)) return;
   if (plcrSubmit(f)) return;
   if (crSubmit(f)) return;
   if (trSubmit(f)) return;
@@ -2109,7 +2252,7 @@ function verify(msg, sig, pub){
 return {sha512, publicKey, sign, verify};
 })();
 
-const FREE_ACTS = new Set(['bv','cr-side','cr-open','cr-back','cr-vue','cr-rm','dj-see','syn-print','syn-csv','goto','day','month','csv','json','arch','cancel','to-perso','lic-open','lic-copy-dev','lic-copy-msg','cs-open','cs-close','cs-say','cs-say-al','cs-next','cs-prev','cr-print','cr-csv']);
+const FREE_ACTS = new Set(['bv','cr-side','cr-open','cr-back','cr-vue','cr-rm','dj-see','syn-print','syn-csv','goto','day','month','csv','json','arch','cancel','to-perso','lic-open','lic-copy-dev','lic-copy-msg','cs-open','cs-close','cs-say','cs-say-al','cs-next','cs-prev','cr-print','cr-csv','nav-back']);
 const Lic = { state:'libre', why:'', until:null, left:0, device:'' };
 const utf8 = s => new TextEncoder().encode(s);
 function b64d(s){ s = s.replace(/-/g,'+').replace(/_/g,'/'); while (s.length%4) s += '='; const bin = atob(s); return Uint8Array.from(bin, c=>c.charCodeAt(0)); }
@@ -2300,7 +2443,7 @@ document.addEventListener('click', async e => {
 }, true);
 if ('serviceWorker' in navigator && location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') { try { navigator.serviceWorker.register('sw.js'); } catch(e){} }
 
-loadLocal(); migrate(); computeLic(); render(); if (LIC) { ouvrirConseilDuJour(); renderConseil(); }
+loadLocal(); migrate(); computeLic(); navDemarrer(); render(); if (LIC) { ouvrirConseilDuJour(); renderConseil(); }
 document.addEventListener('keydown', e => { if (e.key==='Escape' && U.conseil) { U.conseil = null; renderConseil(); } });
 })();
 </script>
